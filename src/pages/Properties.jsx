@@ -104,7 +104,7 @@ const Properties = () => {
         title="Properties"
         subtitle={`${properties.length} listings on the platform`}
         action={
-          <div className="relative w-72">
+          <div className="relative w-full sm:w-72">
             <HiOutlineMagnifyingGlass className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
             <input
               value={query}
@@ -116,7 +116,7 @@ const Properties = () => {
         }
       />
 
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         {loading ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -197,9 +197,9 @@ const Properties = () => {
           </button>
         }
       >
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {EDIT_FIELDS.map((f) => (
-            <div key={f.key} className={f.area ? "col-span-2" : ""}>
+            <div key={f.key} className={f.area ? "sm:col-span-2" : ""}>
               <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">{f.label}</label>
               {f.area ? (
                 <textarea

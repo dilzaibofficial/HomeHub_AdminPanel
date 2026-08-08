@@ -63,7 +63,7 @@ const Admins = () => {
         }
       />
 
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {loading
             ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-24 animate-pulse rounded-2xl bg-slate-100" />)

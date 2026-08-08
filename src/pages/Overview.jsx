@@ -61,7 +61,7 @@ const Overview = () => {
     <div>
       <PageHeader title="Overview" subtitle="A snapshot of everything happening on HomeHub" />
 
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {STAT_CONFIG.map((stat, i) => (
             <StatCard key={stat.key} stat={stat} value={stats?.[stat.key]} index={i} />

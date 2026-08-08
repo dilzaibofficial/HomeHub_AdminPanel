@@ -121,7 +121,7 @@ const Users = () => {
         title="Users"
         subtitle={`${users.length} registered users`}
         action={
-          <div className="relative w-72">
+          <div className="relative w-full sm:w-72">
             <HiOutlineMagnifyingGlass className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
             <input
               value={query}
@@ -133,9 +133,10 @@ const Users = () => {
         }
       />
 
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/60 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <th className="px-6 py-3.5">User</th>
@@ -226,6 +227,7 @@ const Users = () => {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -243,7 +245,7 @@ const Users = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 rounded-xl bg-slate-50 p-4 text-sm">
+            <div className="grid grid-cols-1 gap-4 rounded-xl bg-slate-50 p-4 text-sm sm:grid-cols-2">
               <div><p className="text-xs font-semibold uppercase text-slate-400">Phone</p><p className="mt-0.5 font-medium text-slate-700">{viewUser.phonenumber}</p></div>
               <div><p className="text-xs font-semibold uppercase text-slate-400">CNIC</p><p className="mt-0.5 font-mono font-medium text-slate-700">{viewUser.cnic}</p></div>
               <div><p className="text-xs font-semibold uppercase text-slate-400">Bank Account</p><p className="mt-0.5 font-medium text-slate-700">{viewUser.bankAccount}</p></div>
@@ -253,7 +255,7 @@ const Users = () => {
             {viewUser.CNICImageArray?.length > 0 && (
               <div className="mt-5">
                 <p className="mb-2 text-xs font-semibold uppercase text-slate-400">CNIC Images</p>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                   {viewUser.CNICImageArray.map((url, i) => (
                     <a key={i} href={url} target="_blank" rel="noreferrer" className="block h-24 w-36 overflow-hidden rounded-lg border border-slate-200">
                       <img src={url} alt={`CNIC ${i + 1}`} className="h-full w-full object-cover" />
