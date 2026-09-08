@@ -7,6 +7,8 @@ import Login from "./pages/Login";
 import Overview from "./pages/Overview";
 import Users from "./pages/Users";
 import Properties from "./pages/Properties";
+import Verifications from "./pages/Verifications";
+import Dataset from "./pages/Dataset";
 import Chat from "./pages/Chat";
 import Admins from "./pages/Admins";
 
@@ -33,6 +35,8 @@ const App = () => {
           <Route index element={<Overview />} />
           <Route path="users" element={<Users />} />
           <Route path="properties" element={<Properties />} />
+          <Route path="verifications" element={<Verifications />} />
+          <Route path="dataset" element={<Dataset />} />
           <Route path="chat" element={<Chat />} />
           <Route path="admins" element={<Admins />} />
         </Route>

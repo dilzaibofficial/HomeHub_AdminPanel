@@ -6,6 +6,7 @@ import {
   HiOutlineDocumentCheck,
   HiOutlineBanknotes,
   HiOutlineShieldCheck,
+  HiOutlineVideoCamera,
 } from "react-icons/hi2";
 import client from "../api/client";
 import PageHeader from "../components/PageHeader";
@@ -15,6 +16,7 @@ const STAT_CONFIG = [
   { key: "totalProperty", label: "Properties Listed", icon: HiOutlineHomeModern, color: "emerald" },
   { key: "totalAgreement", label: "Agreements", icon: HiOutlineDocumentCheck, color: "amber" },
   { key: "totalCredit", label: "Transactions", icon: HiOutlineBanknotes, color: "violet" },
+  { key: "pendingVerifications", label: "Pending Verifications", icon: HiOutlineVideoCamera, color: "rose" },
 ];
 
 const COLOR_MAP = {
@@ -22,6 +24,7 @@ const COLOR_MAP = {
   emerald: "bg-emerald-50 text-emerald-600",
   amber: "bg-amber-50 text-amber-600",
   violet: "bg-violet-50 text-violet-600",
+  rose: "bg-rose-50 text-rose-600",
 };
 
 const StatCard = ({ stat, value, index }) => (

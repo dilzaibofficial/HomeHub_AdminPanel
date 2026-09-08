@@ -8,6 +8,8 @@ import {
   HiOutlineChatBubbleLeftRight,
   HiOutlineShieldCheck,
   HiOutlineArrowRightOnRectangle,
+  HiOutlineVideoCamera,
+  HiOutlineCircleStack,
   HiXMark,
 } from "react-icons/hi2";
 import { useAuth } from "../context/AuthContext";
@@ -16,6 +18,8 @@ const NAV_ITEMS = [
   { to: "/", label: "Overview", icon: HiOutlineSquares2X2, end: true },
   { to: "/users", label: "Users", icon: HiOutlineUsers },
   { to: "/properties", label: "Properties", icon: HiOutlineHomeModern },
+  { to: "/verifications", label: "Verification Queue", icon: HiOutlineVideoCamera },
+  { to: "/dataset", label: "Dataset", icon: HiOutlineCircleStack },
   { to: "/chat", label: "Support Chat", icon: HiOutlineChatBubbleLeftRight },
   { to: "/admins", label: "Admins", icon: HiOutlineShieldCheck },
 ];
