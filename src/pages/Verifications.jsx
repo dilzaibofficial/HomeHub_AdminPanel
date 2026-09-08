@@ -42,7 +42,7 @@ const Verifications = () => {
       await client.post(endpoint, { id: property._id });
       setItems((prev) => prev.filter((p) => p._id !== property._id));
       setReviewItem(null);
-      showToast(decision === "approve" ? "Property verified" : "Verification rejected", "success");
+      showToast(decision === "approve" ? "Property verified" : "Video deleted - user can now retake and resubmit", "success");
     } catch (err) {
       showToast(err.response?.data?.message || "Could not record this decision", "error");
     } finally {
@@ -174,7 +174,7 @@ const Verifications = () => {
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
               >
                 <HiOutlineXCircle className="h-4.5 w-4.5" />
-                Reject
+                Delete Video &amp; Ask to Retake
               </button>
               <button
                 onClick={() => decide(reviewItem, "approve")}
