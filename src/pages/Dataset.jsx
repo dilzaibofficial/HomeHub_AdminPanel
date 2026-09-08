@@ -1,21 +1,27 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { HiOutlineCircleStack, HiOutlineArchiveBoxArrowDown } from "react-icons/hi2";
+import { HiOutlineCircleStack, HiOutlineArchiveBoxArrowDown, HiOutlineTrash } from "react-icons/hi2";
 import client from "../api/client";
 import PageHeader from "../components/PageHeader";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { useToast } from "../context/ToastContext";
 
 const Dataset = () => {
   const { showToast } = useToast();
   const [unexportedCount, setUnexportedCount] = useState(null);
+  const [totalCount, setTotalCount] = useState(null);
   const [downloading, setDownloading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const fetchSummary = useCallback(async () => {
     try {
       const { data } = await client.post("/api/admin/datasetSummary");
       setUnexportedCount(data.unexportedCount);
+      setTotalCount(data.totalCount);
     } catch {
       setUnexportedCount(null);
+      setTotalCount(null);
     }
   }, []);
 
@@ -55,6 +61,20 @@ const Dataset = () => {
     }
   };
 
+  const deleteDataset = async () => {
+    setDeleting(true);
+    try {
+      const { data } = await client.post("/api/admin/deleteDataset");
+      showToast(`Deleted ${data.deletedCount} sample${data.deletedCount === 1 ? "" : "s"}`, "success");
+      setConfirmDeleteOpen(false);
+      fetchSummary();
+    } catch {
+      showToast("Could not delete the dataset", "error");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div>
       <PageHeader title="Verification Dataset" subtitle="Internal, labeled data collected from property verifications" />
@@ -77,7 +97,12 @@ const Dataset = () => {
               unexportedCount.toLocaleString()
             )}
           </p>
-          <p className="mt-1 mb-5 text-sm font-medium text-slate-500">new labeled sample{unexportedCount === 1 ? "" : "s"} ready to export</p>
+          <p className="mt-1 mb-1 text-sm font-medium text-slate-500">
+            new labeled sample{unexportedCount === 1 ? "" : "s"} ready to export
+          </p>
+          <p className="mb-5 text-xs text-slate-400">
+            {totalCount === null ? "…" : totalCount.toLocaleString()} total sample{totalCount === 1 ? "" : "s"} stored
+          </p>
 
           <p className="mb-5 text-sm leading-relaxed text-slate-500">
             Each verification (auto-decided or admin-reviewed) adds labeled photo/frame pairs here - organized into
@@ -87,16 +112,36 @@ const Dataset = () => {
             to HomeHub - nothing here is published anywhere automatically.
           </p>
 
-          <button
-            onClick={downloadDataset}
-            disabled={downloading}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 py-3 text-sm font-bold text-white transition hover:bg-brand-600 disabled:opacity-60"
-          >
-            <HiOutlineArchiveBoxArrowDown className="h-5 w-5" />
-            {downloading ? "Preparing zip…" : "Download Dataset (.zip)"}
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={downloadDataset}
+              disabled={downloading}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-500 py-3 text-sm font-bold text-white transition hover:bg-brand-600 disabled:opacity-60"
+            >
+              <HiOutlineArchiveBoxArrowDown className="h-5 w-5" />
+              {downloading ? "Preparing zip…" : "Download Dataset (.zip)"}
+            </button>
+            <button
+              onClick={() => setConfirmDeleteOpen(true)}
+              disabled={!totalCount}
+              title="Permanently delete all stored dataset samples"
+              className="flex items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-3 text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-40"
+            >
+              <HiOutlineTrash className="h-5 w-5" />
+            </button>
+          </div>
         </motion.div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        title="Delete the entire dataset?"
+        message={`All ${totalCount ?? 0} stored sample(s) - and their extracted frame images - will be permanently deleted, including any already downloaded. This can't be undone.`}
+        confirmLabel="Delete Dataset"
+        loading={deleting}
+        onConfirm={deleteDataset}
+        onCancel={() => setConfirmDeleteOpen(false)}
+      />
     </div>
   );
 };
