@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { HiOutlineMagnifyingGlass, HiOutlinePencilSquare, HiOutlineTrash, HiOutlineMapPin } from "react-icons/hi2";
+import { HiOutlineMagnifyingGlass, HiOutlinePencilSquare, HiOutlineTrash, HiOutlineMapPin, HiOutlineSparkles } from "react-icons/hi2";
 import client from "../api/client";
 import PageHeader from "../components/PageHeader";
 import Modal from "../components/Modal";
@@ -28,6 +28,8 @@ const Properties = () => {
   const [editForm, setEditForm] = useState({});
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [seedInfo, setSeedInfo] = useState(null); // { seeded, total } for the demo listings
+  const [seedConfirm, setSeedConfirm] = useState(null); // "seed" | "remove" | null
 
   const fetchProperties = useCallback(async (silent) => {
     if (!silent) setLoading(true);
@@ -40,6 +42,50 @@ const Properties = () => {
       setLoading(false);
     }
   }, [showToast]);
+
+  const fetchSeedInfo = useCallback(async () => {
+    try {
+      const { data } = await client.post("/api/admin/demoSeedStatus");
+      setSeedInfo(data);
+    } catch {
+      /* the button simply shows no count if this fails */
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSeedInfo();
+  }, [fetchSeedInfo]);
+
+  const runSeed = async () => {
+    setBusy(true);
+    try {
+      const { data } = await client.post("/api/admin/seedDemoProperties", {}, { timeout: 180000 });
+      showToast(data.message, "success");
+      if (data.missingOwners?.length) showToast(`Owner account not found: ${data.missingOwners.join(", ")}`, "error");
+      setSeedInfo({ seeded: data.seeded, total: data.total });
+      await fetchProperties(true);
+    } catch (err) {
+      showToast(err.response?.data?.message || "Could not add demo properties", "error");
+    } finally {
+      setBusy(false);
+      setSeedConfirm(null);
+    }
+  };
+
+  const runRemoveSeed = async () => {
+    setBusy(true);
+    try {
+      const { data } = await client.post("/api/admin/removeDemoProperties", {}, { timeout: 180000 });
+      showToast(data.message, "success");
+      await fetchSeedInfo();
+      await fetchProperties(true);
+    } catch (err) {
+      showToast(err.response?.data?.message || "Could not remove demo properties", "error");
+    } finally {
+      setBusy(false);
+      setSeedConfirm(null);
+    }
+  };
 
   useEffect(() => {
     fetchProperties();
@@ -104,6 +150,7 @@ const Properties = () => {
         title="Properties"
         subtitle={`${properties.length} listings on the platform`}
         action={
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
           <div className="relative w-full sm:w-72">
             <HiOutlineMagnifyingGlass className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-slate-400" />
             <input
@@ -112,6 +159,23 @@ const Properties = () => {
               placeholder="Search title, address, owner…"
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10"
             />
+          </div>
+          <button
+            onClick={() => setSeedConfirm("seed")}
+            disabled={busy}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-600 disabled:opacity-60"
+          >
+            <HiOutlineSparkles className="h-4 w-4" /> Seed demo data{seedInfo ? ` (${seedInfo.seeded}/${seedInfo.total})` : ""}
+          </button>
+          {seedInfo?.seeded > 0 && (
+            <button
+              onClick={() => setSeedConfirm("remove")}
+              disabled={busy}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-100 px-4 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-50 disabled:opacity-60"
+            >
+              <HiOutlineTrash className="h-4 w-4" /> Remove demo data
+            </button>
+          )}
           </div>
         }
       />
@@ -219,6 +283,27 @@ const Properties = () => {
           ))}
         </div>
       </Modal>
+
+      <ConfirmDialog
+        open={seedConfirm === "seed"}
+        title="Add demo properties?"
+        message={`This adds ${seedInfo?.total ?? "all"} demo listings: 30 for each of the 8 demo accounts, 2 photos each. Listings that were already added are skipped, so pressing it twice is safe.`}
+        confirmLabel="Add demo properties"
+        danger={false}
+        loading={busy}
+        onConfirm={runSeed}
+        onCancel={() => setSeedConfirm(null)}
+      />
+
+      <ConfirmDialog
+        open={seedConfirm === "remove"}
+        title="Remove all demo properties?"
+        message="Only the demo listings added by the seed button are removed. Real listings, and demo listings that are already in an agreement or rented, are left untouched."
+        confirmLabel="Remove demo data"
+        loading={busy}
+        onConfirm={runRemoveSeed}
+        onCancel={() => setSeedConfirm(null)}
+      />
 
       <ConfirmDialog
         open={!!deleteTarget}
